@@ -87,3 +87,4 @@ run();
 
 if (typeof module !== 'undefined') {
   module.exports = { move };
+}
