@@ -1,4 +1,3 @@
-// This array contains the coordinates for all bus stops between MIT and Harvard
 const busStops = [
   [-71.093729, 42.359244],
   [-71.094915, 42.360175],
@@ -14,37 +13,77 @@ const busStops = [
   [-71.118625, 42.374863],
 ];
 
-// TODO: add your own access token
-mapboxgl.accessToken =
-  "pk.eyJ1IjoieHRyYXNuYXh5IiwiYSI6ImNrcno4bjN4ZjE3bGEyeG4xMHV0bXJ6MTkifQ.nCjTL3FsvmyIj6gs8ApbWQ";
+mapboxgl.accessToken = 'pk.eyJ1IjoiYm9ib3BvcDc4NyIsImEiOiJja3MwbGNtcGQwbzUzMnVyd3FtaHpiZHQ3In0.rvj4UKXunmwCCHLsVH-2ag';
 
-// This is the map instance
 let map = new mapboxgl.Map({
-  container: "map",
-  style: "mapbox://styles/mapbox/streets-v11",
-  center: [-71.104081, 42.365554],
-  zoom: 14,
+  container: 'map',
+  style: 'mapbox://styles/mapbox/streets-v11',
+  center: [-71.0873216701205, 42.354642574314255],
+  zoom: 12.8,
 });
 
-// TODO: add a marker to the map at the first coordinates in the array busStops. The marker variable should be named "marker"
-let marker = new mapboxgl.Marker().setLngLat(busStops[0]).addTo(map);
-// counter here represents the index of the current bus stop
 let counter = 0;
+let isRunning = false;
+let marker = new mapboxgl.Marker({
+  "color": "#3bc22d"
+})
+  .setLngLat([-71.093729, 42.359244])
+  .addTo(map);
+let interval;
+
+function restart() {
+  if(isRunning) {
+    return;
+  }
+  counter = 0;
+  move();
+}
+
 function move() {
-  // TODO: move the marker on the map every 1000ms. Use the function marker.setLngLat() to update the marker coordinates
-  // Use counter to access bus stops in the array busStops
-  // Make sure you call move() after you increment the counter.
-  setTimeout(() => {
-    if (counter >= busStops.length) {
+  isRunning = true;
+  interval = setInterval(() => {
+    if(counter >= busStops.length) {
+      isRunning = false;
       return;
     }
     marker.setLngLat(busStops[counter]);
-    counter += 1;
-    move();
+    counter++;
   }, 1000);
 }
 
-// Do not edit code past this point
-if (typeof module !== "undefined") {
-  module.exports = { move };
+let liveMarkers = [];
+
+async function run() {
+  const locations = await getBusLocations();
+  console.log("Updated at", new Date());
+  console.log(locations);
+  for(let i = 0; i < liveMarkers.length; i++) {
+    liveMarkers[i].remove();
+  }
+  liveMarkers = new Array(locations.length);
+  for(let i = 0; i < locations.length; i++) {
+    let location = [];
+    location.push(locations[i].attributes.longitude, locations[i].attributes.latitude);
+    let popup = new mapboxgl.Popup()
+      .setText("")
+    liveMarkers[i] = new mapboxgl.Marker({
+      "color": "#c92a02"
+    })
+      .setLngLat(location)
+      .addTo(map);
+  }
+
+  setTimeout(run, 20000);
 }
+
+async function getBusLocations() {
+  const url = 'https://api-v3.mbta.com/vehicles?filter[route]=1&include=trip'
+  const response = await fetch(url);
+  const json = await response.json();
+  return json.data;
+}
+
+run();
+
+if (typeof module !== 'undefined') {
+  module.exports = { move };
