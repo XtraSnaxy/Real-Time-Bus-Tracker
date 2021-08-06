@@ -1,6 +1,6 @@
 # Real-Time-Bus-Tracker
 # Description
-This project follows the bus path between M.I.T University and Harvard University. The program uses a GL JavaScript library from Mapbox, and contains markers that follow the bus stops in between the universities.
+This project follows the bus path between M.I.T University and Harvard University and tracks the position of buses in Boston using MBTA's API. The program uses a GL JavaScript library from Mapbox, and contains markers that follow the bus stops in between the universities and display the current position of buses.
 
 # How To Use
 Once the link is clicked on the "Projects" page, the "Show stops between MIT and Harvard" button and map appear. Click the button to start the animation.
